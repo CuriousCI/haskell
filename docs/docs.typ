@@ -54,7 +54,7 @@ $
   - where
 
 - strings:
-  - "abc" unicode string
+  - "abc" unicode string (basically a list of chars)
   - 'a' single character
   - "multi \ line \ string" multiline string
   
@@ -149,5 +149,9 @@ $
 
 #bibliography("bibliography.bib", title: "Bibliografia")
 
+https://github.com/shwestrick/smlfmt
+https://smlhelp.github.io/book/docs/
+TODO: smlnj
+TODO: millet
 
 // https://hackage.haskell.org/package/CheatSheet-1.5/src/CheatSheet.pdf
