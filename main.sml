@@ -1,33 +1,3 @@
-(* expressions vs statements *)
-
-(* signature HASKELL =
-sig
-  (* type Identifier = string *)
-  (*Integer of int | Real of real | Character of char *)
-  (* value vs datatype *)
-
-  datatype DataType =
-    Integer
-  | Real
-  | Character
-  | Bool
-  | Alias of DataType
-  | NewType of DataType
-  | Type of DataType list list (* TODO: constructors, associated types etc... *)
-end *)
-
-(*structure Haskell :> HASKELL =
-struct*)
-(* datatype DataType =
-  Integer
-| Real
-| Character
-| Bool
-| Alias of DataType
-| NewType of DataType
-| Type of DataType list list (* TODO: constructors, associated types etc... *)
-*)
-
 type Identifier = string
 
 datatype Literal =
@@ -180,15 +150,66 @@ print
 
 val lazy_vs_eager =
   Function ("recursive", "x", Call ("recursive", Variable "x"), Let
-    ("x", Call ("recursive", Literal (Integer 1)), Variable "y"));
+    ( "x"
+    , Call ("recursive", Literal (Integer 1))
+    , Literal (Integer 10) (*Variable "x"*)
+    ));
 
 print
-  ((case evaluate (factorial, []) of
+  ((case evaluate (lazy_vs_eager, []) of
       SOME (Integer x) => "lazy vs eager " ^ Int.toString x
     | SOME (Boolean x) => Bool.toString x
     | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
 
-val static_vs_dynamic = ()
+val static_vs_dynamic =
+  Let
+    ( "x"
+    , Literal (Integer 10)
+    , Function
+        ( "something"
+        , "x"
+        , Times (Variable "x", Literal (Integer 10))
+        , Call ("something", Literal (Integer 5))
+
+        )
+    );
+
+print
+  ((case evaluate (static_vs_dynamic, []) of
+      SOME (Integer x) => "static vs dynamic " ^ Int.toString x
+    | SOME (Boolean x) => Bool.toString x
+    | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+
+(* expressions vs statements *)
+
+(* signature HASKELL =
+sig
+  (* type Identifier = string *)
+  (*Integer of int | Real of real | Character of char *)
+  (* value vs datatype *)
+
+  datatype DataType =
+    Integer
+  | Real
+  | Character
+  | Bool
+  | Alias of DataType
+  | NewType of DataType
+  | Type of DataType list list (* TODO: constructors, associated types etc... *)
+end *)
+
+(*structure Haskell :> HASKELL =
+struct*)
+(* datatype DataType =
+  Integer
+| Real
+| Character
+| Bool
+| Alias of DataType
+| NewType of DataType
+| Type of DataType list list (* TODO: constructors, associated types etc... *)
+*)
+
 
 (* (case evalutate (expression, environment) of
    SOME literal => evalutate ( body , VariableBinding (argument, Literal literal) :: associated_environment)
