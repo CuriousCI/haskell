@@ -174,9 +174,21 @@ val factorial =
 
 print
   ((case evaluate (factorial, []) of
-      SOME (Integer x) => "prova " ^ Int.toString x
+      SOME (Integer x) => "factorial " ^ Int.toString x
     | SOME (Boolean x) => Bool.toString x
     | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+
+val lazy_vs_eager =
+  Function ("recursive", "x", Call ("recursive", Variable "x"), Let
+    ("x", Call ("recursive", Literal (Integer 1)), Variable "y"));
+
+print
+  ((case evaluate (factorial, []) of
+      SOME (Integer x) => "lazy vs eager " ^ Int.toString x
+    | SOME (Boolean x) => Bool.toString x
+    | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+
+val static_vs_dynamic = ()
 
 (* (case evalutate (expression, environment) of
    SOME literal => evalutate ( body , VariableBinding (argument, Literal literal) :: associated_environment)
