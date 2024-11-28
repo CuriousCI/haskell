@@ -6,33 +6,25 @@ datatype Literal =
 | Character of char
 | Boolean of bool
 
-datatype Ordering = Less | Equal | Greater
+datatype Tau = Constant of Literal | Variable of Identifier | Arrow of Tau * Tau
+datatype Type = Tau of Tau | ForAll of Identifier * Tau
 
 datatype Expression =
   Literal of Literal
 | Variable of Identifier
 | Implies of Expression * Expression
 | Eq of Expression * Expression
-| Let of Identifier * Expression * Expression
-| If of Expression * Expression * Expression
 | Times of Expression * Expression
 | Minus of Expression * Expression
+| If of Expression * Expression * Expression
+| Let of Identifier * Expression * Expression
 | Function of Identifier * Identifier * Expression * Expression
 | Call of Identifier * Expression
 
 
-(* possible solution *)
 datatype Entry =
   FunctionClosure of Identifier * (Identifier * Expression * (Entry list))
 | VariableBinding of Identifier * (Expression * (Entry list))
-
-(* search in env *)
-
-(*val integer_list = 1 :: 2 :: 3 :: 5 :: []*)
-
-val y = let val x = 10 in x end
-
-val error = Integer 1
 
 fun search (identifier, FunctionClosure (function, closure) :: environment) =
       if String.compare (identifier, function) = EQUAL then
@@ -45,13 +37,6 @@ fun search (identifier, FunctionClosure (function, closure) :: environment) =
       else
         search (identifier, environment)
   | search (_, []) = NONE
-
-(*let val FunctionClosure (var, exp, env) = search (x, env)
-in (eval (exp, env))
-end *)
-
-(* Int.compare to compare *)
-
 
 fun evaluate (Literal literal, _) = SOME literal
   | evaluate (Variable variable, environment) =
@@ -111,23 +96,22 @@ fun evaluate (Literal literal, _) = SOME literal
              )
        | _ => NONE)
 
+fun debug program =
+  print
+    ((case evaluate (program, []) of
+        SOME (Integer x) => Int.toString x
+      | SOME (Boolean x) => Bool.toString x
+      | _ => "NONE") ^ "\n")
+
 val sum = Let ("x", Literal (Integer 5), Times (Variable "x", Times
   (Literal (Integer 4), Literal (Integer 5))));
 
-print
-  ((case evaluate (sum, []) of
-      SOME (Integer x) => Int.toString x
-    | SOME (Boolean x) => Bool.toString x
-    | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+debug sum
 
 val simple_function = Function ("simple", "x", Literal (Integer 10), Call
   ("simple", Literal (Integer 5)));
 
-print
-  ((case evaluate (simple_function, []) of
-      SOME (Integer x) => Int.toString x
-    | SOME (Boolean x) => Bool.toString x
-    | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+debug simple_function
 
 val factorial =
   Function
@@ -142,11 +126,7 @@ val factorial =
     , Call ("factorial", Literal (Integer 4))
     );
 
-print
-  ((case evaluate (factorial, []) of
-      SOME (Integer x) => "factorial " ^ Int.toString x
-    | SOME (Boolean x) => Bool.toString x
-    | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+debug factorial
 
 val lazy_vs_eager =
   Function ("recursive", "x", Call ("recursive", Variable "x"), Let
@@ -155,11 +135,7 @@ val lazy_vs_eager =
     , Literal (Integer 10) (*Variable "x"*)
     ));
 
-print
-  ((case evaluate (lazy_vs_eager, []) of
-      SOME (Integer x) => "lazy vs eager " ^ Int.toString x
-    | SOME (Boolean x) => Bool.toString x
-    | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+debug lazy_vs_eager
 
 val static_vs_dynamic =
   Let
@@ -174,12 +150,18 @@ val static_vs_dynamic =
         )
     );
 
-print
-  ((case evaluate (static_vs_dynamic, []) of
-      SOME (Integer x) => "static vs dynamic " ^ Int.toString x
-    | SOME (Boolean x) => Bool.toString x
-    | _ => "Eh, volevi! Guarda che faccia!") ^ "\n");
+debug static_vs_dynamic
 
+
+(* datatype Ordering = Less | Equal | Greater *)
+(* possible solution *)
+(* search in env *)
+(*val integer_list = 1 :: 2 :: 3 :: 5 :: []*)
+(* val y = let val x = 10 in x end *)
+(*let val FunctionClosure (var, exp, env) = search (x, env)
+in (eval (exp, env))
+end *)
+(* Int.compare to compare *)
 (* expressions vs statements *)
 
 (* signature HASKELL =
