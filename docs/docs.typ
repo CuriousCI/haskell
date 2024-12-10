@@ -13,7 +13,7 @@
 
   Carboni Francesco \
   Cicio Ionuţ \
-  ?? Giovanni \
+  Colasuonno Giovanni \
   Mazzella Marco
 ]
 

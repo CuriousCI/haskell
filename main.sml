@@ -106,12 +106,12 @@ fun debug program =
 val sum = Let ("x", Literal (Integer 5), Times (Variable "x", Times
   (Literal (Integer 4), Literal (Integer 5))));
 
-debug sum
+debug sum;
 
 val simple_function = Function ("simple", "x", Literal (Integer 10), Call
   ("simple", Literal (Integer 5)));
 
-debug simple_function
+debug simple_function;
 
 val factorial =
   Function
@@ -126,7 +126,7 @@ val factorial =
     , Call ("factorial", Literal (Integer 4))
     );
 
-debug factorial
+debug factorial;
 
 val lazy_vs_eager =
   Function ("recursive", "x", Call ("recursive", Variable "x"), Let
@@ -135,7 +135,7 @@ val lazy_vs_eager =
     , Literal (Integer 10) (*Variable "x"*)
     ));
 
-debug lazy_vs_eager
+debug lazy_vs_eager;
 
 val static_vs_dynamic =
   Let
@@ -150,7 +150,7 @@ val static_vs_dynamic =
         )
     );
 
-debug static_vs_dynamic
+debug static_vs_dynamic;
 
 
 (* datatype Ordering = Less | Equal | Greater *)
