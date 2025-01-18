@@ -1,142 +1,83 @@
+signature Num =
+sig
+  type a
+
+  val add: a * a -> a
+  val sub: a * a -> a
+  val mul: a * a -> a
+
+  val negate: a -> a
+  val abs: a -> a
+  val signum: a -> a
+  val fromInteger: int -> a
+end
+
+signature Eq =
+sig
+  type a
+
+  val eq: a -> a -> bool
+  val ne: a -> a -> bool
+end
+
+signature Cmp =
+sig
+  type a
+
+  val cmp: a -> a -> General.order
+  val lt: a -> a -> bool
+  val le: a -> a -> bool
+  val gt: a -> a -> bool
+  val ge: a -> a -> bool
+
+  val max: a -> a -> a
+  val min: a -> a -> a
+end
+
+
 datatype ('a, 'b) Result = Ok of 'a | Err of 'b
 
-(* di solito si usa "literal" per indicare un "valore costante" nel codice *)
-(* le alternative che avete usato sono Const e K. *)
-(* datatype Literal =
-  Int of int
-| Real of real
-| Char of char
-| Bool of bool
 
-(* infixr 5 op+ *)
+datatype Literal = Int of int | Real of real | Char of char
 
-fun add (Int x, Int y) =
-      Ok (Int (x + y))
-  | add (Int x, Real y) =
-      Ok (Real (Real.fromInt x + y))
-  | add (Real x, Int y) =
-      Ok (Real (x + Real.fromInt y))
-  | add (Real x, Real y) =
-      Ok (Real (x + y))
-  | add (_, _) = Err ""
-
-fun sub (Int x, Int y) =
-      Ok (Int (x - y))
-  | sub (Int x, Real y) =
-      Ok (Real (Real.fromInt x - y))
-  | sub (Real x, Int y) =
-      Ok (Real (x - Real.fromInt y))
-  | sub (Real x, Real y) =
-      Ok (Real (x - y))
-  | sub (_, _) = Err "" *)
-
-signature TYPE_OP =
-sig
-  type t
-  type u
-  val operation: t * t -> u
-end
-
-signature OP =
-sig
-  val opInt: (int * int -> int) option
-  val opReal: (real * real -> real) option
-  val opChar: (char * char -> char) option
-  val opBool: (bool * bool -> bool) option
-end
-
-datatype Literal = Int of int | Real of real | Char of char | Bool of bool
-datatype Err = MismatchedTypes | OperationNotSupported
-
-functor LiteralOperation(O: OP): TYPE_OP =
+structure IntX: Num =
 struct
-  open O
-  type t = Literal
-  type u = (t, Err) Result
+  type a = int
 
-  fun operation (Int x, Int y) =
-        (case opInt of
-           SOME f => Ok (Int (f (x, y)))
-         | _ => Err OperationNotSupported)
+  val add = Int.+
+  val sub = Int.-
+  val mul = Int.*
 
-    (* | operation (Int x, Real y) =
-        (case (O.op_real (Real.fromInt x, y)) of
-           (SOME z) => Ok (Real z)
-         | _ => Err OperationNotSupported) *)
-    (* | operation (Int x, Real y) =
-        Ok (Real (O.op_real (Real.fromInt x, y)))
-    | operation (Real x, Int y) =
-        Ok (Real (O.op_real (x, Real.fromInt y)))
-    | operation (Real x, Real y) =
-        Ok (Real (O.op_real (x, y)))*)
-    | operation (x, y) =
-        case (x, y) of
-          (Char _, _) => Err OperationNotSupported
-        | (Bool _, _) => Err OperationNotSupported
-        | (_, Char _) => Err OperationNotSupported
-        | (_, Bool _) => Err OperationNotSupported
-        | _ => Err MismatchedTypes
+  val negate = Int.-
+  val abs = Int.abs
+  val signum = Int.sign
+  val fromInteger = Int.fromInt
 end
 
-structure Plus: OP =
-struct
-  val opInt = SOME op+
-  val opReal = SOME (fn (x: real, y) => x + y)
-  val opChar = NONE
-  val opBool = NONE
-end
 
-structure PlusLiteralOperation = LiteralOperation(Plus)
+fun plus (a, b) =
+  case (a, b) of
+    (Int a, Int b) => SOME (Int (a + b))
+  | (Int a, Real b) => plus (Real (Real.fromInt a), Real b)
+  | (Real a, Int b) => plus (Int b, Real a)
+  | (Real a, Real b) => SOME (Real (a + b))
+  | _ => NONE
 
+fun minus (a, b) =
+  case (a, b) of
+    (Int a, Int b) => SOME (Int (a - b))
+  | (Int a, Real b) => plus (Real (Real.fromInt a), Real b)
+  | (Real a, Int b) => plus (Int b, Real a)
+  | (Real a, Real b) => SOME (Real (a - b))
+  | _ => NONE
 
-(* structure Literal: TYPE_OP =
-struct
-  type t = Literal
-  datatype Err = MismatchedTypes | OperationNotSupported
-  type u = (t, Err) Result
-
-  fun add (Int x, Int y) =
-        Ok (Int (x + y))
-    | add (Int x, Real y) =
-        Ok (Real (Real.fromInt x + y))
-    | add (Real x, Int y) =
-        Ok (Real (x + Real.fromInt y))
-    | add (Real x, Real y) =
-        Ok (Real (x + y))
-    | add (x, y) =
-        case (x, y) of
-          (Char _, _) => Err OperationNotSupported
-        | (Bool _, _) => Err OperationNotSupported
-        | (_, Char _) => Err OperationNotSupported
-        | (_, Bool _) => Err OperationNotSupported
-        | _ => Err MismatchedTypes
-end *)
-
-(* (Char _, _) | (_, Char _) | (Bool _, _) | (_, Bool _) => Err
-* OperationNotSupported,*)
-
-(* | add  = Err OperationNotSupported
-| add  = Err OperationNotSupported
-| add  = Err OperationNotSupported
-| add  = Err OperationNotSupported
-| add (_, _) = Err MismatchedTypes *)
-
-infix 5 add
-
-open Literal
-
-val x = Int 5 add Int 6
-
-infix +
-
-infix add
-
-
-(* val result = (Int 5) add (Int 6) *)
-
-(* (case (x, y) of
-   (Int x, Int y) => Ok (Int (x + y))
- | _ => Err "")*)
+fun times (a, b) =
+  case (a, b) of
+    (Int a, Int b) => SOME (Int (a * b))
+  | (Int a, Real b) => plus (Real (Real.fromInt a), Real b)
+  | (Real a, Int b) => plus (Int b, Real a)
+  | (Real a, Real b) => SOME (Real (a * b))
+  | _ => NONE
 
 
 (* di solito si usa "identifier" per indicare il "nome di qualcosa" nel codice *)
@@ -148,43 +89,47 @@ type Identifier = string
 * perché ci sono cose in Haskell che non sono espressioni, (suppongo i moduli?) *)
 
 (* qui ad esempio usano più tipi di Expression, effettivamente si potrebbe
-* provare a fare una distinzione (non che serva più di tanto nel nostro caso) https://tree-sitter.github.io/tree-sitter/creating-parsers#structuring-rules-well *)
+* provare a fare una distinzione (non che serva più di tanto nel nostro caso)
+* https://tree-sitter.github.io/tree-sitter/creating-parsers#structuring-rules-well
+* *)
+
 datatype Expression =
   Const of Literal
-| Var of Identifier (* avete usato tutti Var, mi adeguo anche io *)
+| Var of Identifier
 
 | Plus of Expression * Expression
 | Times of Expression * Expression
 | Minus of Expression * Expression
 
-(* TODO: sarebbe figo mettere la divisione, e le altre "operazioni base" disponibili in Haskell, tipo: *)
-(* Unary minus, Absolute value, Floor, Sum, Difference, Product, Division, Int division Remainder, Modulus, Power, Less than, Greater than, Less or equal, Greater or equal, Equal, Not equal *)
-
 | Eq of Expression * Expression
 | Lt of Expression * Expression
-(* Le altre si possono ricavare da queste due e dai connettivi logici. *)
 
 | And of Expression * Expression
 | Or of Expression * Expression
 | Not of Expression
+
+
+| IfThenElse of Expression * Expression * Expression
+
+| Let of Identifier * Expression * Expression
+| Fn of Identifier * Expression
+| Function of Identifier * Identifier * Expression * Expression
+| Call of Identifier * Expression
+
+
+(* TODO: sarebbe figo mettere la divisione, e le altre "operazioni base" disponibili in Haskell, tipo: *)
+(* Unary minus, Absolute value, Floor, Sum, Difference, Product, Division, Int division Remainder, Modulus, Power, Less than, Greater than, Less or equal, Greater or equal, Equal, Not equal *)
+(* Le altre si possono ricavare da queste due e dai connettivi logici. *)
 (* Ho levato "Implication" da me, e penso di lasciare questi 3. Tecnicamente con
 * l'implicazione posiamo fare anche questi? Però credo che inizialmente sarebbe
 * più comodo lavorare così *)
-
-| IfThenElse of Expression * Expression * Expression
 (* Mi sembra più espressivo metterlo così, anche se io e Francesco abbiamo
 * usato entrambi "If". Per me sarebbe uguale. *)
 
-| Let of Identifier * Expression * Expression
 (* Penso sia  ragionevole tenere let x = M in N così com'è. *)
 
-| Fn of Identifier * Expression
-| Function of Identifier * Identifier * Expression * Expression
 (* Alla fine ho deciso di implementarli entrambi per semplicità, al massimo si
 * possono levare *)
-
-| Call of Identifier * Expression
-
 
 (* structure Expression: ADD =
 struct
@@ -452,4 +397,135 @@ val x =
           )
       );
     
-    debug static_vs_dynamic *)
+    debug static_vs_dynamic *) (* di solito si usa "literal" per indicare un "valore costante" nel codice *) (* le alternative che avete usato sono Const e K. *)
+    (* datatype Literal =
+      Int of int
+    | Real of real
+    | Char of char
+    | Bool of bool
+    
+    (* infixr 5 op+ *)
+    
+    fun add (Int x, Int y) =
+          Ok (Int (x + y))
+      | add (Int x, Real y) =
+          Ok (Real (Real.fromInt x + y))
+      | add (Real x, Int y) =
+          Ok (Real (x + Real.fromInt y))
+      | add (Real x, Real y) =
+          Ok (Real (x + y))
+      | add (_, _) = Err ""
+    
+    fun sub (Int x, Int y) =
+          Ok (Int (x - y))
+      | sub (Int x, Real y) =
+          Ok (Real (Real.fromInt x - y))
+      | sub (Real x, Int y) =
+          Ok (Real (x - Real.fromInt y))
+      | sub (Real x, Real y) =
+          Ok (Real (x - y))
+      | sub (_, _) = Err "" *)
+    (* fun division (a, b) =
+      case (a, b) of
+        (Int a, Int b) => plus (Real (Real.fromInt a), Real (Real.fromInt b))
+      | (Int a, Real b) => plus (Real (Real.fromInt a), Real b)
+      | (Real a, Int b) => plus (Int b, Real a)
+      | (Real a, Real b) => SOME (Real (a / b))
+      | _ => NONE *) (* structure Literal: TYPE_OP =
+                     struct
+                       type t = Literal
+                       datatype Err = MismatchedTypes | OperationNotSupported
+                       type u = (t, Err) Result
+                     
+                       fun add (Int x, Int y) =
+                             Ok (Int (x + y))
+                         | add (Int x, Real y) =
+                             Ok (Real (Real.fromInt x + y))
+                         | add (Real x, Int y) =
+                             Ok (Real (x + Real.fromInt y))
+                         | add (Real x, Real y) =
+                             Ok (Real (x + y))
+                         | add (x, y) =
+                             case (x, y) of
+                               (Char _, _) => Err OperationNotSupported
+                             | (Bool _, _) => Err OperationNotSupported
+                             | (_, Char _) => Err OperationNotSupported
+                             | (_, Bool _) => Err OperationNotSupported
+                             | _ => Err MismatchedTypes
+                     end *)
+    (* (Char _, _) | (_, Char _) | (Bool _, _) | (_, Bool _) => Err
+    * OperationNotSupported,*) (* | add  = Err OperationNotSupported
+                               | add  = Err OperationNotSupported
+                               | add  = Err OperationNotSupported
+                               | add  = Err OperationNotSupported
+                               | add (_, _) = Err MismatchedTypes *)
+    (*infix 5 add
+    
+    open Literal
+    
+    val x = Int 5 add Int 6
+    
+    infix +
+    
+    infix add*) (* val result = (Int 5) add (Int 6) *)
+    (* (case (x, y) of
+       (Int x, Int y) => Ok (Int (x + y))
+     | _ => Err "")*) (* datatype ('a, 'b) Result = Ok of 'a | Err of 'b
+                      
+                      
+                      signature TYPE_OP =
+                      sig
+                        type t
+                        type u
+                        val operation: t * t -> u
+                      end
+                      
+                      signature OP =
+                      sig
+                        val opInt: (int * int -> int) option
+                        val opReal: (real * real -> real) option
+                        val opChar: (char * char -> char) option
+                        val opBool: (bool * bool -> bool) option
+                      end
+                      
+                      datatype Err = MismatchedTypes | OperationNotSupported
+                      
+                      functor LiteralOperation(O: OP): TYPE_OP =
+                      struct
+                        open O
+                        type t = Literal
+                        type u = (t, Err) Result
+                      
+                        fun operation (Int x, Int y) =
+                              (case opInt of
+                                 SOME f => Ok (Int (f (x, y)))
+                               | _ => Err OperationNotSupported)
+                      
+                          (* | operation (Int x, Real y) =
+                              (case (O.op_real (Real.fromInt x, y)) of
+                                 (SOME z) => Ok (Real z)
+                               | _ => Err OperationNotSupported) *)
+                          (* | operation (Int x, Real y) =
+                              Ok (Real (O.op_real (Real.fromInt x, y)))
+                          | operation (Real x, Int y) =
+                              Ok (Real (O.op_real (x, Real.fromInt y)))
+                          | operation (Real x, Real y) =
+                              Ok (Real (O.op_real (x, y)))*)
+                          | operation (x, y) =
+                              case (x, y) of
+                                (Char _, _) => Err OperationNotSupported
+                              | (Bool _, _) => Err OperationNotSupported
+                              | (_, Char _) => Err OperationNotSupported
+                              | (_, Bool _) => Err OperationNotSupported
+                              | _ => Err MismatchedTypes
+                      end
+                      
+                      structure Plus: OP =
+                      struct
+                        val opInt = SOME op+
+                        val opReal = SOME (fn (x: real, y) => x + y)
+                        val opChar = NONE
+                        val opBool = NONE
+                      end
+                      
+                      structure PlusLiteralOperation = LiteralOperation(Plus)*) (* --------------- *)

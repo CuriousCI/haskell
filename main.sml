@@ -1,13 +1,57 @@
 type Identifier = string
 
-datatype Literal =
-  Integer of int
-| Real of real
-| Character of char
-| Boolean of bool
+datatype Literal = Integer of int | Float of real | Char of char
+datatype Special = LPar | RPar | Comm | Semi | LSqr | RSqr | Tick | LCur | RCur
 
-datatype Tau = Constant of Literal | Variable of Identifier | Arrow of Tau * Tau
-datatype Type = Tau of Tau | ForAll of Identifier * Tau
+datatype ReservedId =
+  Case
+| Class
+| Data
+| Default
+| Deriving
+| Do
+| Else
+| Foreign
+| If
+| Import
+| In
+| Infix
+| InfixL
+| InfixR
+| Instance
+| Let
+| Module
+| NewType
+| Of
+| Then
+| Type
+| Where
+| Blank
+
+datatype Lexeme =
+  QVarId
+| QConId
+| QVarSym
+| QConSym
+| Literal of Literal
+| Special of Special
+| ReserverdOp
+| ReserverdId of ReservedId
+
+
+datatype CFS = Module | Body | 
+
+(* Curved Brackets or Parentheses (…) are the most commonly used and are the focus of this article.
+Square Brackets […] are most often used to include additional information from an outside source (someone other than the original author).
+Curly Brackets*)
+
+(* | Boolean of bool*)
+
+(* datatype Tau =
+  Constant of Literal
+| Variable of Identifier
+| Arrow of Tau * Tau
+datatype Type = Tau of Tau | ForAll of Identifier * Tau*)
 
 datatype Expression =
   Literal of Literal

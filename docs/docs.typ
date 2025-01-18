@@ -27,7 +27,7 @@
 
 #pagebreak()
 
-#let split(over, under, lateral: [], top: 6pt) = box(
+#let derivation(over, under, lateral: []) = box(
   if lateral == [] [
     #grid(
       columns: 1,
@@ -35,7 +35,7 @@
       over,
       grid.cell(
         stroke: (top: 0.1pt),
-        inset: (top: top),
+        inset: (top: 6pt),
         under
       )
     )
@@ -48,11 +48,11 @@
       grid.cell(
         rowspan: 2,
         align: bottom,
-        [ #lateral #v(.6em + top - 1pt) ]
+        [ #lateral #v(.6em + 6pt - 1pt) ]
       ),
       grid.cell(
         stroke: (top: 0.1pt),
-        inset: (top: top),
+        inset: (top: 6pt),
         under
       ),
     )
@@ -142,7 +142,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E' tack M arrow.squiggly v$,
     $E tack x arrow.squiggly v$,
     lateral: $("se" E(x) = (M, E'))$,
@@ -151,7 +151,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack A arrow.squiggly #true quad E tack B arrow.squiggly #true$,
     $E tack A ==> B arrow.squiggly #true$,
   )
@@ -160,7 +160,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack A arrow.squiggly #false quad E tack B arrow.squiggly #true$,
     $E tack A ==> B arrow.squiggly #true$,
   )
@@ -168,7 +168,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack A arrow.squiggly #false quad E tack B arrow.squiggly #false$,
     $E tack A ==> B arrow.squiggly #true$,
   )
@@ -176,7 +176,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack A arrow.squiggly #false quad E tack B arrow.squiggly #true$,
     $E tack A ==> B arrow.squiggly #false$,
   )
@@ -184,7 +184,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack M arrow.squiggly m quad E tack N arrow.squiggly n$,
     $E tack M = N arrow.squiggly #true$,
     lateral: $("se" m = n)$ 
@@ -193,7 +193,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack M arrow.squiggly m quad E tack N arrow.squiggly n$,
     $E tack M = N arrow.squiggly #false$,
     lateral: $("se" m != n)$ 
@@ -202,7 +202,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack M arrow.squiggly m quad E tack N arrow.squiggly n$,
     $E tack M dot N arrow.squiggly v$,
     lateral: $("se" v = m dot n)$ 
@@ -211,7 +211,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack M arrow.squiggly m quad E tack N arrow.squiggly n$,
     $E tack M - N arrow.squiggly v$,
     lateral: $("se" v = m - n)$ 
@@ -220,7 +220,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack B arrow.squiggly #true quad E tack M arrow.squiggly m$,
     $E tack "if" B "then" M "else" N arrow.squiggly m$,
   )
@@ -228,7 +228,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E tack B arrow.squiggly #false quad E tack N arrow.squiggly n$,
     $E tack "if" B "then" M "else" N arrow.squiggly n$,
   )
@@ -236,7 +236,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E (x, (M, E)) tack N arrow.squiggly n$,
     $E tack "let" x = M "in" N arrow.squiggly n$,
   )
@@ -244,7 +244,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E (f, (x, M, E)) tack N arrow.squiggly n$,
     $E tack "fun" f x = M "in" N arrow.squiggly n$,
   )
@@ -252,7 +252,7 @@ $ E tack k arrow.squiggly k $
 
 #align(
   center, 
-  split(
+  derivation(
     $E'(x, (N, E))(f, (x, M, E')) tack M arrow.squiggly m$,
     $E tack f N arrow.squiggly m$,
     lateral: $("se" E(f) = (x, M, E'))$
@@ -435,5 +435,7 @@ https://github.com/shwestrick/smlfmt
 https://smlhelp.github.io/book/docs/
 TODO: smlnj
 TODO: millet
+https://serokell.io/blog/haskell-typeclasses 
+https://www.haskell.org/onlinereport/haskell2010/haskellch10.html
 
 // https://hackage.haskell.org/package/CheatSheet-1.5/src/CheatSheet.pdf
