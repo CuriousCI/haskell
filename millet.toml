@@ -1,1 +1,4 @@
 version = 1
+
+[diagnostics]
+4017.severity = "ignore"

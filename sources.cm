@@ -1,0 +1,10 @@
+Group 
+    structure Main
+is
+    $/basis.cm
+    $/json-lib.cm
+    $/smlnj-lib.cm
+
+    main.sml
+    parser.sml
+    haskell.sml
