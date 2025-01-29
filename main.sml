@@ -13,7 +13,8 @@ struct
       val inputStream = TextIO.openIn "main.hsml"
       val content = TextIO.inputAll inputStream
       val _ = TextIO.closeIn inputStream
-      val _ = print (Parser.toString (Parser.parse (explode content, [])))
+      val _ = print (Parser.tts (Parser.tokenize (explode content)))
+    (* val _ = print (Parser.toString (Parser.parse (explode content, []))) *)
     in
       OS.Process.success
     end

@@ -1,17 +1,16 @@
 structure Haskell =
 struct
-  type VarId = string
+  type Var = string
 
   datatype Exp =
     Literal of Literal
-  | Var of VarId
+  | Var of Var
   | IfThenElse of Exp * Exp
-  | Let of VarId * Exp * Exp
-  | Call of VarId * Exp list
-  | Fn of VarId * Exp
+  | Let of Var * Exp * Exp
+  | Call of Var * Exp list
+  | Fn of Var * Exp
+  | Fun of Var * Var * Exp
   | Op of Op
-  (* | Fun of VarId * VarId list * Exp * Exp *)
-  (* | Case of Exp *)
   and Literal =
     Int of int
   | Real of real
@@ -32,6 +31,8 @@ struct
   | Div of Exp * Exp
   | Pow of Exp * Exp
 
+  (* | Fun of Var * Var list * Exp * Exp *)
+  (* | Case of Exp *)
 
   fun lookup (key, (entry_key, entry_value) :: entries) =
         if String.compare (key, entry_key) = EQUAL then SOME entry_value

@@ -2,68 +2,167 @@
 
 structure Parser =
 struct
-  datatype Lex =
-    Empty
-  | Word of string
-  | Unknown of string
+  (* datatype Lex = *)
+  (* Empty *)
+  (*   Word of string *)
+  (* | Unknown of string *)
+  (* | Var of string *)
+  (* | Fn of string *)
+  (* | Literal of Haskell.Literal *)
+  (* | If *)
+  (* | Let *)
+
+  datatype Token =
+    LPar
+  | RPar
+  | Arrow
+
   | Var of string
-  | Fn of string
-  | Literal of Haskell.Literal
+
+  | Char of char
+  | Int of int
+  | Real of real
+  | Bool of bool
+
+  | And
+  | Or
+  | Leq
+  | Lt
+  | Geq
+  | Gt
+  | EqOp
+  | Plus
+  | Minus
+  | Times
+  | Div
+  | Pow
+
+  | Eq
+  | BackSlash
+
   | If
-  | Let
+  | Then
+  | Else
+  (* | Let *)
 
-  datatype State =
-    None
-  | LPar
-  | Num
-  | LTick
-  | Char
-  | T
-  | Tr
-  | Tru
-  | True
-  | F
-  | Fa
-  | Fal
-  | False
-  | DoneConst
-  | Op of char
-  | EmptyBeforeBody
-  | Lambda
-  | LambdaVar
-  | LambdaVarDone
-  | LambdaTick
-  | LambdaArrow
-  | LambdaBeforeBody
-  | UnknownWord
-  | FirstEmptyAfterWord
-  | EmptyAfterWord
-  | FunctionEqual
-  | EmptyAfterFunctionEqual
+  fun tts (LPar :: s) = " LPar " ^ tts s
+    | tts (RPar :: s) = " RPar " ^ tts s
+    | tts (Arrow :: s) = " Arrow " ^ tts s
+    | tts (Var v :: s) =
+        " Var(" ^ v ^ ") " ^ tts s
+    | tts (Char c :: s) =
+        " Char(" ^ Char.toString c ^ ") " ^ tts s
+    | tts (Int i :: s) =
+        " Int(" ^ Int.toString i ^ ") " ^ tts s
+    | tts (Real r :: s) =
+        " Real(" ^ Real.toString r ^ ") " ^ tts s
+    | tts (Bool _ :: s) = " Bool " ^ tts s
+    | tts (And :: s) = " And " ^ tts s
+    | tts (Or :: s) = " Or " ^ tts s
+    | tts (Leq :: s) = " Leq " ^ tts s
+    | tts (Lt :: s) = " Lt " ^ tts s
+    | tts (Geq :: s) = " Geq " ^ tts s
+    | tts (Gt :: s) = " Gt " ^ tts s
+    | tts (EqOp :: s) = " EqOp " ^ tts s
+    | tts (Plus :: s) = " Plus " ^ tts s
+    | tts (Minus :: s) = " Minus " ^ tts s
+    | tts (Times :: s) = " Times " ^ tts s
+    | tts (Div :: s) = " Div " ^ tts s
+    | tts (Pow :: s) = " Pow " ^ tts s
+    | tts (Eq :: s) = " Eq " ^ tts s
+    | tts (BackSlash :: s) = " BackSlash " ^ tts s
+    | tts (If :: s) = " If " ^ tts s
+    | tts (Then :: s) = " Then " ^ tts s
+    | tts (Else :: s) = " Else " ^ tts s
+    | tts _ = ""
 
-  (* Read ( -> either read x, \, 2 ->  *)
 
-  fun parse (s, ctx, state) =
-    case s of
-      #"(" :: l => parse (l, Empty :: ctx, state)
-    | a :: l =>
-        (case ctx of
-           Empty :: res => parse (l, (Word (Char.toString a)) :: res, state)
-         | (Word w) :: res =>
-             parse (l, Word ((Char.toString a) ^ w) :: res, state)
-         (* case a, space, not space*)
-         | _ :: res => ctx
-         | [] => ctx)
-    | [] => ctx
+  datatype Literal = Word of string | IntSeq of string | RealSeq of string
 
-  fun toString lex =
-    (case lex of
-       Empty :: l => "(" ^ (toString l) ^ ")"
-     | (Word word) :: l => "word: " ^ word ^ " (" ^ (toString l) ^ ")"
-     | (Unknown unknown) :: l =>
-         "unknown: " ^ unknown ^ " (" ^ (toString l) ^ ")"
-     | (Var var) :: l => "var: " ^ var ^ " (" ^ (toString l) ^ ")"
-     | (Fn f) :: l => "fn " ^ f ^ " => (" ^ (toString l) ^ ")"
-     | (Literal _) :: l => "k (" ^ (toString l) ^ ")"
-     | _ => "");
-end (* let val l1 as (n :: res) = ctx in parse (l, ctx) end *) (* val x = 1; (* type Identifier = string *) (**) (* datatype Program = Lexeme of Lexeme | Whitespace of Whitespace *) (* and Lexeme = *) (*   QVarId *) (* | QConId *) (* | QVarSym *) (* | QConSym *) (* | Literal of Literal *) (* | Special of Special *) (* | ReserverdOp *) (* | ReserverdId of ReservedId *) (* and  Literal = Integer | Float| Char | String *) (* and  Special = LPar | RPar | Comm | Semi | LSqr | RSqr | Tick | LCur | RCur *) (**) (* and Whitespace = Whitestuff of Whitestuff *) (* and Whitestuff = Whitechar of Whitechar | Comment  *) (* and Whitechar = Newline | Vertab | Space | Tab  *) (**) (**) (**) (* and ReservedId = *) (*   Case *) (* | Class *) (* | Data *) (* | Default *) (* | Deriving *) (* | Do *) (* | Else *) (* | Foreign *) (* | If *) (* | Import *) (* | In *) (* | Infix *) (* | InfixL *) (* | InfixR *) (* | Instance *) (* | Let *) (* | Module *) (* | NewType *) (* | Of *) (* | Then *) (* | Type *) (* | Where *) (* | Blank *) (**) (**) (* and CFS = Module | Body  *) (* fun parse(s) = (case of s) *) *)
+  fun fetch (Word w, s) =
+        (case s of
+           a :: cs =>
+             if Char.isAlpha a then fetch (Word (w ^ Char.toString a), cs)
+             else (Word w, s)
+         | _ => (Word w, s))
+    | fetch (IntSeq i, s) =
+        (case s of
+           #"." :: cs => fetch (RealSeq (i ^ "."), cs)
+         | a :: cs =>
+             if Char.isDigit a then fetch (IntSeq (i ^ Char.toString a), cs)
+             else (IntSeq i, s)
+         | _ => (IntSeq i, s))
+    | fetch (RealSeq r, s) =
+        (case s of
+           a :: cs =>
+             if Char.isDigit a then fetch (RealSeq (r ^ Char.toString a), cs)
+             else (RealSeq r, s)
+         | _ => (RealSeq r, s))
+
+  fun tokenize [] = []
+    | tokenize (#"(" :: s) = LPar :: tokenize s
+    | tokenize (#")" :: s) = RPar :: tokenize s
+    | tokenize (#"-" :: #">" :: s) = Arrow :: tokenize s
+    | tokenize (#"&" :: #"&" :: s) = And :: tokenize s
+    | tokenize (#"|" :: #"|" :: s) = Or :: tokenize s
+    | tokenize (#"<" :: #"=" :: s) = Leq :: tokenize s
+    | tokenize (#"<" :: s) = Lt :: tokenize s
+    | tokenize (#">" :: #"=" :: s) = Geq :: tokenize s
+    | tokenize (#">" :: s) = Gt :: tokenize s
+    | tokenize (#"=" :: #"=" :: s) = EqOp :: tokenize s
+    | tokenize (#"+" :: s) = Plus :: tokenize s
+    | tokenize (#"-" :: s) = Minus :: tokenize s
+    | tokenize (#"*" :: s) = Times :: tokenize s
+    | tokenize (#"/" :: s) = Div :: tokenize s
+    | tokenize (#"^" :: s) = Pow :: tokenize s
+    | tokenize (#"=" :: s) = Eq :: tokenize s
+    | tokenize (#"\\" :: s) = BackSlash :: tokenize s
+    | tokenize (#"T" :: #"r" :: #"u" :: #"e" :: s) = Bool true :: tokenize s
+    | tokenize (#"F" :: #"a" :: #"l" :: #"s" :: #"e" :: s) =
+        Bool false :: tokenize s
+    | tokenize (#"'" :: c :: #"'" :: s) = Char c :: tokenize s
+    | tokenize (c :: s) =
+        if Char.isSpace c then
+          tokenize s
+        else
+          (if Char.isDigit c then
+             let
+               val (l, cs) = fetch (IntSeq (Char.toString c), s)
+             in
+               (case l of
+                  Word w => Var w :: tokenize cs
+                | IntSeq i =>
+                    (case Int.fromString i of
+                       SOME i => Int i :: tokenize cs
+                     | NONE => raise Fail "")
+                | RealSeq r =>
+                    (case Real.fromString r of
+                       SOME r => Real r :: tokenize cs
+                     | NONE => raise Fail ""))
+             end
+           else
+             (if Char.isAlpha c then
+                let
+                  val (l, cs) = fetch (Word (Char.toString c), s)
+                in
+                  (case l of
+                     Word w => Var w :: tokenize cs
+                   | IntSeq i =>
+                       (case Int.fromString i of
+                          SOME i => Int i :: tokenize cs
+                        | NONE => raise Fail "")
+                   | RealSeq r =>
+                       (case Real.fromString r of
+                          SOME r => Real r :: tokenize cs
+                        | NONE => raise Fail ""))
+                end
+              else
+                raise Fail ""))
+
+  fun parse (LPar :: Var name :: Var x :: Eq :: LPar :: ts) = 0
+    | parse (LPar :: Var x :: RPar :: ts) = 0
+    | parse (LPar :: BackSlash :: Var x :: Arrow :: LPar :: ts) = 0
+    | parse (LPar :: Var x :: Plus :: ts) = 0
+    | parse _ = 0
+
+end

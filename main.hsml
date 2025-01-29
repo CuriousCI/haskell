@@ -1,2 +1,9 @@
-(x = (\y -> (y + ((\x -> y) 2) x)))
+(name(x) = 
+    (\niggachu -> 
+        (y + ( (\x -> (y))(2) ))
+    )
+)
 
+(name(x)=(\y->(y+((\x->(y))(2))x)))
+
+(factorial n = (if n == 0 then 1 else n * factorial(n - 1)))
