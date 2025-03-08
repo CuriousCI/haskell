@@ -1,0 +1,1 @@
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///home/cicio/projects/haskell/main.hsml","diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"message":"\\","severity":1,"source":"hsml_ls"}]}}
